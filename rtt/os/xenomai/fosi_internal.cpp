@@ -219,7 +219,6 @@ namespace RTT
                 name = "XenoThread";
             task->name = strncpy( (char*)malloc( (strlen(name)+1)*sizeof(char) ), name, strlen(name)+1 );
             task->sched_type = sched_type; // User requested scheduler.
-
 #if (CONFIG_XENO_VERSION_MAJOR <= 2)
             unsigned int aff = 0;
             if ( cpu_affinity != 0 ) {
