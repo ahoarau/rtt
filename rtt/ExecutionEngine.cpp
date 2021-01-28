@@ -106,8 +106,7 @@ namespace RTT
             if ( foo->execute() == false ){
                 foo->unloaded();
 #if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
-                os::MutexLock lock(msg_lock);	
-                msg_cond.broadcast();	
+                MutexLock lock(msg_lock);	
 #else
                 {
                     // There's no need to hold the lock while
@@ -117,8 +116,8 @@ namespace RTT
                     // waitForMessagesInternal().
                     MutexLock locker( msg_lock );
                 }
-                msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
 #endif
+                msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
 
             } else {
                 f_queue->enqueue( foo );
@@ -234,10 +233,9 @@ namespace RTT
         if ( com )
         {
 #if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
-            os::MutexLock lock(msg_lock);	
-#else
-            msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
+            MutexLock lock(msg_lock);	
 #endif
+            msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
         }
     }
 
@@ -268,13 +266,10 @@ namespace RTT
         if ( c && this->getActivity() ) {
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
-            {
 #if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
-                os::MutexLock lock(msg_lock);	
-#else
-                msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
+            MutexLock lock(msg_lock);
 #endif
-            }
+            msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
             return result;
         }
         return false;
@@ -312,7 +307,7 @@ namespace RTT
         if ( pred() )
             return;
         // only to be called from the thread not executing step().
-        os::MutexLock lock(msg_lock);
+        MutexLock lock(msg_lock);
         while (!pred()) { // the mutex guards that processMessages can not run between !pred and the wait().
             msg_cond.wait(msg_lock); // now processMessages may run.
         }
@@ -331,7 +326,7 @@ namespace RTT
             {
                 // only to be called from the thread executing step().
                 // We must lock because the cond variable will unlock msg_lock.
-                os::MutexLock lock(msg_lock);
+                MutexLock lock(msg_lock);
                 if (!pred()) {
                     msg_cond.wait(msg_lock); // now processMessages may run.
                 } else {
