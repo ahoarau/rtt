@@ -105,9 +105,6 @@ namespace RTT
             assert(foo);
             if ( foo->execute() == false ){
                 foo->unloaded();
-#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
-                MutexLock lock(msg_lock);	
-#else
                 {
                     // There's no need to hold the lock while
                     // processing the queue. But we must hold the
@@ -116,7 +113,6 @@ namespace RTT
                     // waitForMessagesInternal().
                     MutexLock locker( msg_lock );
                 }
-#endif
                 msg_cond.broadcast(); // required for waitForFunctions() (3rd party thread)
 
             } else {
@@ -232,9 +228,6 @@ namespace RTT
         }
         if ( com )
         {
-#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
-            MutexLock lock(msg_lock);	
-#endif
             msg_cond.broadcast(); // required for waitForMessages() (3rd party thread)
         }
     }
@@ -266,9 +259,6 @@ namespace RTT
         if ( c && this->getActivity() ) {
             bool result = mqueue->enqueue( c );
             this->getActivity()->trigger();
-#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
-            MutexLock lock(msg_lock);
-#endif
             msg_cond.broadcast(); // required for waitAndProcessMessages() (EE thread)
             return result;
         }

@@ -150,9 +150,6 @@ namespace RTT
             return false;
         //a trigger is always allowed when active
          {
-#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
-             os::MutexLock lock(msg_lock);
-#endif
              msg_cond.broadcast();
          }
         Thread::start();
@@ -171,9 +168,6 @@ namespace RTT
         }
         mtimeout = true;
         {
-#if defined(OROPKG_OS_XENOMAI) && (CONFIG_XENO_VERSION_MAJOR == 3)
-            os::MutexLock lock(msg_lock);
-#endif
             msg_cond.broadcast();
         }
         Thread::start();
